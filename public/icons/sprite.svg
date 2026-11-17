@@ -1,0 +1,47 @@
+<svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <symbol id="home" viewBox="0 0 20 20" fill="none">
+  <path d="M1 8.33333L9.25 1L17.5 8.33333V17.5C17.5 17.7431 17.4034 17.9763 17.2315 18.1482C17.0596 18.3201 16.8264 18.4167 16.5833 18.4167H12V12H6.5V18.4167H1.91667C1.67355 18.4167 1.44039 18.3201 1.26849 18.1482C1.09658 17.9763 1 17.7431 1 17.5V8.33333Z" />
+    </symbol>
+    <symbol id="main-photo" width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_8_70)">
+    <rect width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="80" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="160" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="240" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="320" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="400" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="480" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="560" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="640" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="720" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="800" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="880" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="960" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="1040" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="1120" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="1200" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="1280" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect x="1360" width="1" height="900" fill="white" fill-opacity="0.035" />
+    <rect width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="80" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="160" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="240" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="320" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="400" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="480" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="560" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="640" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="720" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="800" width="1440" height="1" fill="white" fill-opacity="0.035" />
+    <rect y="880" width="1440" height="1" fill="white" fill-opacity="0.035" />
+  </g>
+
+    <clipPath id="clip0_8_70">
+      <rect width="1440" height="900" fill="white" />
+    </clipPath>
+
+
+  </defs>
+</svg>
+ 

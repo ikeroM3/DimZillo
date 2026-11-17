@@ -1,0 +1,35 @@
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding-right: 64px;
+  padding-left: 64px;
+}
+.linkLogo {
+  padding-top: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.text {
+  font-family: var(--second-family);
+  font-weight: 700;
+  font-size: 22px;
+  color: #eaf0ff;
+}
+.home {
+  width: 50px;
+  height: 50px;
+  padding: 10px;
+  box-sizing: border-box;
+
+  border-radius: 12px;
+  background: linear-gradient(90deg, #ff7a1a 0%, #ff3d81 100%);
+  box-shadow: 0 4px 16px rgba(255, 122, 26, 0.5);
+
+  stroke: #fff;
+  stroke-width: 2px;
+}
+.body {
+  background: url('/public/images/Background.png') no-repeat center center important;
+}
