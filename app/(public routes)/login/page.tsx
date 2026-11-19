@@ -1,21 +1,15 @@
-'use client';
-
 import AuthTitle from '@/components/AuthMain/AuthTitle/AuthTitle';
 import AuthForm from '@/components/AuthForm/AuthForm';
 import HeadersRegister from '@/components/Header-register/Header-register';
 import css from './page.module.css';
-const SignUp = () => {
-  const handleSubmit = async (formData: FormData) => {};
-
+export default function Login() {
   return (
     <>
       <HeadersRegister />
       <main className={css.main}>
         <AuthTitle />
-        <AuthForm />
+        <AuthForm onSubmit={handleSubmit} />
       </main>
     </>
   );
-};
-
-export default SignUp;
+}

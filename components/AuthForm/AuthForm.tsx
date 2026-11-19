@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 
@@ -27,25 +29,23 @@ function getStrength(password: string) {
   return score;
 }
 
+const validationSchema = Yup.object({
+  userName: Yup.string().min(2, "Ім'я повинно містити мінімум 2 символи").required("Введіть ім'я"),
+
+  email: Yup.string().email('Некоректний формат email').required('Введіть email'),
+
+  password: Yup.string()
+    .min(8, 'Пароль повинен містити мінімум 8 символів')
+    .required('Введіть пароль'),
+
+  agree: Yup.boolean().oneOf([true], 'Потрібно погодитися з умовами використання'),
+});
+
 export default function AuthForm({ onSubmit }: AuthFormProps) {
   const pathname = usePathname();
   const isLogin = pathname === '/login';
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [agree, setAgree] = useState(false);
-
-  const strength = getStrength(password);
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-
-    onSubmit(formData);
-  };
 
   return (
     <div className={css.card}>
@@ -79,130 +79,162 @@ export default function AuthForm({ onSubmit }: AuthFormProps) {
         </p>
       </div>
 
-      {/* Form */}
-      <form className={css.form} onSubmit={handleSubmit}>
-        {/* Name */}
-        {!isLogin && (
-          <div className={css.field}>
-            <label htmlFor="name" className={css.label}>
-              Ім'я
-            </label>
+      {/* Formik */}
+      <Formik
+        initialValues={{
+          userName: '',
+          email: '',
+          password: '',
+          agree: false,
+        }}
+        validationSchema={
+          isLogin
+            ? Yup.object({
+                email: Yup.string().email('Некоректний формат email').required('Введіть email'),
+                password: Yup.string().required('Введіть пароль'),
+              })
+            : validationSchema
+        }
+        onSubmit={async values => {
+          const formData = new FormData();
 
-            <div className={css.inputWrap}>
-              <User size={18} className={css.icon} />
+          Object.entries(values).forEach(([key, value]) => {
+            if (key === 'userName' && isLogin) return;
 
-              <input
-                id="name"
-                name="name"
-                type="text"
-                className={css.input}
-                placeholder="Артем Стужук"
-                autoComplete="name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-        )}
+            formData.append(key, String(value));
+          });
 
-        {/* Email */}
-        <div className={css.field}>
-          <label htmlFor="email" className={css.label}>
-            Email
-          </label>
+          await onSubmit(formData);
+        }}
+      >
+        {({ values, setFieldValue, isSubmitting }) => {
+          const strength = getStrength(values.password);
 
-          <div className={css.inputWrap}>
-            <Mail size={18} className={css.icon} />
+          return (
+            <Form className={css.form}>
+              {/* Name */}
+              {!isLogin && (
+                <div className={css.field}>
+                  <label htmlFor="userName" className={css.label}>
+                    Ім'я
+                  </label>
 
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className={css.input}
-              placeholder="name@example.com"
-              autoComplete="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
-        </div>
+                  <div className={css.inputWrap}>
+                    <User size={18} className={css.icon} />
 
-        {/* Password */}
-        <div className={css.field}>
-          <label htmlFor="password" className={css.label}>
-            Пароль
-          </label>
+                    <Field
+                      id="userName"
+                      name="userName"
+                      type="text"
+                      className={css.input}
+                      placeholder="Артем Стужук"
+                      autoComplete="name"
+                    />
+                  </div>
 
-          <div className={css.inputWrap}>
-            <Lock size={18} className={css.icon} />
+                  <ErrorMessage name="userName" component="span" className={css.error} />
+                </div>
+              )}
 
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              className={css.input}
-              placeholder="••••••••"
-              autoComplete={isLogin ? 'current-password' : 'new-password'}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              minLength={isLogin ? undefined : 8}
-              required
-            />
+              {/* Email */}
+              <div className={css.field}>
+                <label htmlFor="email" className={css.label}>
+                  Email
+                </label>
 
-            <button
-              type="button"
-              className={css.eye}
-              onClick={() => setShowPassword(v => !v)}
-              aria-label={showPassword ? 'Сховати пароль' : 'Показати пароль'}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+                <div className={css.inputWrap}>
+                  <Mail size={18} className={css.icon} />
 
-          {/* Password strength */}
-          {!isLogin && password && (
-            <div className={css.strength}>
-              <div className={css.bars}>
-                {[1, 2, 3, 4].map(n => (
-                  <span key={n} className={`${css.bar} ${n <= strength ? css.barOn : ''}`} />
-                ))}
+                  <Field
+                    id="email"
+                    name="email"
+                    type="email"
+                    className={css.input}
+                    placeholder="name@example.com"
+                    autoComplete="email"
+                  />
+                </div>
+
+                <ErrorMessage name="email" component="span" className={css.error} />
               </div>
 
-              <span className={css.strengthText}>{strengthLabels[strength]}</span>
-            </div>
-          )}
-        </div>
+              {/* Password */}
+              <div className={css.field}>
+                <label htmlFor="password" className={css.label}>
+                  Пароль
+                </label>
 
-        {/* Agreement */}
-        {!isLogin && (
-          <label className={css.agree}>
-            <input
-              type="checkbox"
-              name="agree"
-              className={css.checkbox}
-              checked={agree}
-              onChange={e => setAgree(e.target.checked)}
-            />
+                <div className={css.inputWrap}>
+                  <Lock size={18} className={css.icon} />
 
-            <span className={css.box}>
-              <Check size={12} strokeWidth={3} />
-            </span>
+                  <Field
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    className={css.input}
+                    placeholder="••••••••"
+                    autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  />
 
-            <span className={css.agreeText}>
-              Погоджуюсь з умовами використання та політикою конфіденційності
-            </span>
-          </label>
-        )}
+                  <button
+                    type="button"
+                    className={css.eye}
+                    onClick={() => setShowPassword(v => !v)}
+                    aria-label={showPassword ? 'Сховати пароль' : 'Показати пароль'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
 
-        {/* Submit */}
-        <button type="submit" className={css.submit} disabled={!isLogin && !agree}>
-          {isLogin ? 'Увійти в акаунт' : 'Створити акаунт'}
+                <ErrorMessage name="password" component="span" className={css.error} />
 
-          <ArrowRight size={18} />
-        </button>
-      </form>
+                {/* Password strength */}
+                {!isLogin && values.password && (
+                  <div className={css.strength}>
+                    <div className={css.bars}>
+                      {[1, 2, 3, 4].map(n => (
+                        <span key={n} className={`${css.bar} ${n <= strength ? css.barOn : ''}`} />
+                      ))}
+                    </div>
+
+                    <span className={css.strengthText}>{strengthLabels[strength]}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Agreement */}
+              {!isLogin && (
+                <div>
+                  <label className={css.agree}>
+                    <Field type="checkbox" name="agree" className={css.checkbox} />
+
+                    <span className={css.box}>
+                      <Check size={12} strokeWidth={3} />
+                    </span>
+
+                    <span className={css.agreeText}>
+                      Погоджуюсь з умовами використання та політикою конфіденційності
+                    </span>
+                  </label>
+
+                  <ErrorMessage name="agree" component="span" className={css.error} />
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className={css.submit}
+                disabled={isSubmitting || (!isLogin && !values.agree)}
+              >
+                {isSubmitting ? 'Зачекайте...' : isLogin ? 'Увійти в акаунт' : 'Створити акаунт'}
+
+                <ArrowRight size={18} />
+              </button>
+            </Form>
+          );
+        }}
+      </Formik>
 
       {/* Divider */}
       <div className={css.divider}>

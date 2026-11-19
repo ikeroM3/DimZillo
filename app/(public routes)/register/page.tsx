@@ -2,14 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 import AuthTitle from '@/components/AuthMain/AuthTitle/AuthTitle';
 import AuthForm from '@/components/AuthForm/AuthForm';
 import HeadersRegister from '@/components/Header-register/Header-register';
-
 import { register, type RegisterRequest } from '@/lib/api';
 import { ApiError } from '@/app/api/api';
-
 import css from './page.module.css';
 
 const SignUp = () => {
@@ -25,7 +22,8 @@ const SignUp = () => {
       const res = await register(formValues);
 
       if (res) {
-        router.push('/profile');
+        router.push('/home');
+        router.refresh();
       }
     } catch (error) {
       setError(
