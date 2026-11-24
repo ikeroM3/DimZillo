@@ -1,5 +1,5 @@
 // lib/api.ts
-
+import type { BuildingSummary, ListingItem } from '@/types/map';
 import axios from 'axios';
 
 // Видаляємо стару логіку baseURL
@@ -28,3 +28,22 @@ export const register = async (data: RegisterRequest) => {
   const res = await nextServer.post<User>('/auth/register', data);
   return res.data;
 };
+export type LoginRequest = { email: string; password: string };
+
+export const login = async (data: LoginRequest) => {
+  const res = await nextServer.post<User>('/auth/login', data);
+  return res.data;
+};
+
+export const logout = async () => {
+  await nextServer.post('/auth/logout');
+};
+export const getBuildings = async () =>
+  (await nextServer.get<BuildingSummary[]>('/buildings')).data;
+
+export const getBuildingListings = async (id: string) =>
+  (await nextServer.get<ListingItem[]>(`/buildings/${id}/listings`)).data;
+
+// лише для розробки
+export const seedBuilding = async (p: { lng: number; lat: number }) =>
+  (await nextServer.post('/dev/seed', p)).data;

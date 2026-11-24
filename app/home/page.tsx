@@ -1,8 +1,10 @@
-export default function HomePage() {
+import Header from '@/components/Header/Header';
+
+export default function HomeLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
-      <p>This is the main landing page of the application.</p>
-    </div>
+    <>
+      <Header />
+      {children}
+    </>
   );
 }

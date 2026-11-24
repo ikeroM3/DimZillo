@@ -1,17 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Check } from 'lucide-react';
 
+import { login, register } from '@/lib/api';
+import type { ApiError } from '@/app/api/api';
 import css from './AuthForm.module.css';
 
-type AuthFormProps = {
-  onSubmit: (formData: FormData) => void | Promise<void>;
+type FormValues = {
+  userName: string;
+  email: string;
+  password: string;
+  agree: boolean;
 };
 
 const strengthLabels = ['Занадто слабкий', 'Слабкий', 'Середній', 'Надійний', 'Дуже надійний'];
@@ -29,28 +33,59 @@ function getStrength(password: string) {
   return score;
 }
 
-const validationSchema = Yup.object({
+const registerSchema = Yup.object({
   userName: Yup.string().min(2, "Ім'я повинно містити мінімум 2 символи").required("Введіть ім'я"),
-
   email: Yup.string().email('Некоректний формат email').required('Введіть email'),
-
   password: Yup.string()
     .min(8, 'Пароль повинен містити мінімум 8 символів')
     .required('Введіть пароль'),
-
   agree: Yup.boolean().oneOf([true], 'Потрібно погодитися з умовами використання'),
 });
 
-export default function AuthForm({ onSubmit }: AuthFormProps) {
+const loginSchema = Yup.object({
+  email: Yup.string().email('Некоректний формат email').required('Введіть email'),
+  password: Yup.string().required('Введіть пароль'),
+});
+
+export default function AuthForm() {
   const pathname = usePathname();
+  const router = useRouter();
   const isLogin = pathname === '/login';
 
   const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
+
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      setServerError('');
+
+      if (isLogin) {
+        await login({ email: values.email, password: values.password });
+      } else {
+        await register({
+          userName: values.userName,
+          email: values.email,
+          password: values.password,
+        });
+      }
+
+      router.push('/home');
+      router.refresh();
+    } catch (err) {
+      const e = err as ApiError;
+      setServerError(e.response?.data?.error ?? e.message ?? 'Щось пішло не так');
+    }
+  };
 
   return (
-    <div className={css.card}>
+    <div className={`${css.card} ${isLogin ? css.cardLogin : css.cardRegister}`}>
       {/* Tabs */}
       <div className={css.tabs}>
+        <span
+          className={`${css.indicator} ${isLogin ? css.toLogin : css.toRegister}`}
+          aria-hidden="true"
+        />
+
         <Link
           href="/login"
           className={`${css.tab} ${isLogin ? css.tabActive : ''}`}
@@ -80,34 +115,17 @@ export default function AuthForm({ onSubmit }: AuthFormProps) {
       </div>
 
       {/* Formik */}
-      <Formik
+      <Formik<FormValues>
         initialValues={{
           userName: '',
           email: '',
           password: '',
           agree: false,
         }}
-        validationSchema={
-          isLogin
-            ? Yup.object({
-                email: Yup.string().email('Некоректний формат email').required('Введіть email'),
-                password: Yup.string().required('Введіть пароль'),
-              })
-            : validationSchema
-        }
-        onSubmit={async values => {
-          const formData = new FormData();
-
-          Object.entries(values).forEach(([key, value]) => {
-            if (key === 'userName' && isLogin) return;
-
-            formData.append(key, String(value));
-          });
-
-          await onSubmit(formData);
-        }}
+        validationSchema={isLogin ? loginSchema : registerSchema}
+        onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue, isSubmitting }) => {
+        {({ values, isSubmitting }) => {
           const strength = getStrength(values.password);
 
           return (
@@ -220,6 +238,9 @@ export default function AuthForm({ onSubmit }: AuthFormProps) {
                   <ErrorMessage name="agree" component="span" className={css.error} />
                 </div>
               )}
+
+              {/* Server error */}
+              {serverError && <p className={css.serverError}>{serverError}</p>}
 
               {/* Submit */}
               <button
