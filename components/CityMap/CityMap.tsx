@@ -17,8 +17,7 @@ import type { BuildingSummary, ListingItem } from '@/types/map';
 import ListingsPanel from './ListingsPanel';
 import css from './CityMap.module.css';
 
-// OpenFreeMap (безкоштовно, схема OpenMapTiles: є шар building з висотами)
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/fiord';
 const CENTER: [number, number] = [30.5234, 50.4501]; // Київ
 const PANEL_WIDTH = 500;
 const BUILDINGS_LAYER = 'buildings-3d';
@@ -47,7 +46,15 @@ function ringContains(ring: number[][], [x, y]: number[]) {
   }
   return inside;
 }
-
+function darkenBase(map: MapLibreMap) {
+  for (const l of map.getStyle().layers) {
+    if (l.type === 'background') {
+      map.setPaintProperty(l.id, 'background-color', '#05070d');
+    } else if (l.type === 'fill' && 'source-layer' in l && l['source-layer'] === 'water') {
+      map.setPaintProperty(l.id, 'fill-color', '#0a0d18');
+    }
+  }
+}
 function polygonContains(g: Polygon | MultiPolygon, p: number[]) {
   const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
   return polys.some(
@@ -90,6 +97,7 @@ export default function CityMap() {
         bearing: -17,
         maxPitch: 75,
         attributionControl: { compact: true },
+        canvasContextAttributes: { antialias: true },
       });
       mapRef.current = map;
       const m = map;
@@ -106,7 +114,7 @@ export default function CityMap() {
         pillsRef.current.clear();
 
         for (const b of data) {
-          // wrapper отримує transform від MapLibre, hover-ефекти — на внутрішній кнопці
+          // wrapper отримує transform від MapLibre, hover-ефекти на внутрішній кнопці
           const wrap = document.createElement('div');
           const pill = document.createElement('button');
           pill.type = 'button';
@@ -129,6 +137,7 @@ export default function CityMap() {
       };
 
       m.on('load', async () => {
+        darkenBase(m);
         const layers = m.getStyle().layers;
 
         // шукаємо джерело будівель у стилі та ховаємо його власні 3D-шари
@@ -165,6 +174,7 @@ export default function CityMap() {
             source: buildingSource,
             'source-layer': 'building',
             minzoom: 13,
+            filter: ['!=', ['get', 'hide_3d'], true],
             layout: { 'fill-extrusion-rounded-corner-distance': 2 },
             paint: {
               'fill-extrusion-color': [

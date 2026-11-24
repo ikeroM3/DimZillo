@@ -1,12 +1,16 @@
 .wrap {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
   padding: 16px 24px 0;
+  pointer-events: none;
 }
 
 /* ---------- скляна панель ---------- */
 .bar {
+  max-width: none;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -29,7 +33,10 @@
   margin: 0 auto;
   padding: 32px 40px 0;
 }
-
+.bar,
+.minimal {
+  pointer-events: auto;
+}
 /* ---------- logo ---------- */
 .logo {
   display: flex;
