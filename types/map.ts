@@ -15,4 +15,6 @@ export type ListingItem = {
   rooms: number;
   area: number;
   floor: number;
+  photos: string[];
+  url?: string;
 };

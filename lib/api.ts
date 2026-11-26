@@ -43,7 +43,3 @@ export const getBuildings = async () =>
 
 export const getBuildingListings = async (id: string) =>
   (await nextServer.get<ListingItem[]>(`/buildings/${id}/listings`)).data;
-
-// лише для розробки
-export const seedBuilding = async (p: { lng: number; lat: number }) =>
-  (await nextServer.post('/dev/seed', p)).data;

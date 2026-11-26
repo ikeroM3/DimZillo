@@ -37,11 +37,31 @@ export default function ListingsPanel({ building, items, error, onClose }: Props
 
         {items?.map(item => (
           <article key={item.id} className={css.card}>
+            {item.photos[0] && (
+              <div className={css.photoWrap}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.photos[0]}
+                  alt={item.title}
+                  className={css.photo}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+                {item.photos.length > 1 && (
+                  <span className={css.photoCount}>{item.photos.length} фото</span>
+                )}
+              </div>
+            )}
             <span className={css.cardPrice}>{formatPrice(item.price)}</span>
             <h3 className={css.cardTitle}>{item.title}</h3>
             <p className={css.cardMeta}>
               {item.rooms} кімн. · {item.area} м² · {item.floor} поверх
             </p>
+            {item.url && (
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className={css.cardLink}>
+                Відкрити на DOM.RIA
+              </a>
+            )}
           </article>
         ))}
       </div>

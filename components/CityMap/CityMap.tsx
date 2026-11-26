@@ -10,7 +10,7 @@ import type {
 import type { Polygon, MultiPolygon } from 'geojson';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import { getBuildings, getBuildingListings, seedBuilding } from '@/lib/api';
+import { getBuildings, getBuildingListings } from '@/lib/api';
 import { formatRange } from '@/lib/format';
 import type { BuildingSummary, ListingItem } from '@/types/map';
 
@@ -217,21 +217,12 @@ export default function CityMap() {
         m.on('mouseenter', BUILDINGS_LAYER, () => (m.getCanvas().style.cursor = 'pointer'));
         m.on('mouseleave', BUILDINGS_LAYER, () => (m.getCanvas().style.cursor = ''));
 
-        m.on('click', async e => {
+        m.on('click', e => {
           const hit = m.queryRenderedFeatures(e.point, { layers: [BUILDINGS_LAYER] })[0];
           const poly = hit?.geometry as Polygon | MultiPolygon | undefined;
           const found = poly
             ? buildingsRef.current.find(b => polygonContains(poly, [b.lng, b.lat]))
             : undefined;
-
-          // dev: Alt + клік по будинку створює демо-оголошення
-          if (e.originalEvent.altKey && process.env.NODE_ENV === 'development') {
-            if (poly && !found) {
-              await seedBuilding({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-              await reload();
-            }
-            return;
-          }
 
           setSelected(found ?? null);
         });
@@ -267,11 +258,34 @@ export default function CityMap() {
       .queryRenderedFeatures(map.project(point), { layers: [BUILDINGS_LAYER] })
       .find(f => polygonContains(f.geometry as Polygon | MultiPolygon, point));
 
+    const props = (hit?.properties ?? {}) as Record<string, unknown>;
+
+    let ring: number[][][] | undefined;
+    if (hit) {
+      const g = hit.geometry as Polygon | MultiPolygon;
+      ring =
+        g.type === 'Polygon'
+          ? g.coordinates
+          : g.coordinates.find(
+              p => ringContains(p[0], point) && !p.slice(1).some(h => ringContains(h, point))
+            );
+    }
+
     src.setData(
-      hit
+      ring
         ? {
             type: 'FeatureCollection',
-            features: [{ type: 'Feature', geometry: hit.geometry, properties: hit.properties }],
+            features: [
+              {
+                type: 'Feature',
+                geometry: { type: 'Polygon', coordinates: JSON.parse(JSON.stringify(ring)) },
+                properties: {
+                  render_height: Number(props.render_height) || 0,
+                  height: Number(props.height) || 0,
+                  render_min_height: Number(props.render_min_height) || 0,
+                },
+              },
+            ],
           }
         : EMPTY
     );
@@ -307,10 +321,6 @@ export default function CityMap() {
   return (
     <section className={css.wrap}>
       <div ref={containerRef} className={css.map} />
-
-      {process.env.NODE_ENV === 'development' && (
-        <p className={css.devHint}>Alt + клік по будинку: додати демо-оголошення</p>
-      )}
 
       {selected && (
         <ListingsPanel

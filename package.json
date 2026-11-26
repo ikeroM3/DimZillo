@@ -10,6 +10,7 @@
     "postinstall": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
+    "apify-client": "^2.26.1",
     "axios": "^1.21.1",
     "bcryptjs": "^3.0.3",
     "formik": "^2.4.9",

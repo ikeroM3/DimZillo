@@ -23,6 +23,8 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
         rooms: l.rooms,
         area: l.area,
         floor: l.floor,
+        photos: l.photos ?? [],
+        url: l.url,
       }))
     );
   } catch (e) {
