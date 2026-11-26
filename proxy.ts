@@ -1,22 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
 
-export async function proxy(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get('token')?.value;
-  const isAuth = token ? !!(await verifyToken(token)) : false;
+  const hasToken = Boolean(req.cookies.get('token')?.value);
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(hasToken ? '/home' : '/register', req.url));
+  }
 
-  if (!isAuth && pathname.startsWith('/home')) {
+  if (pathname.startsWith('/home') && !hasToken) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
-  if (isAuth && isAuthPage) {
+
+  if ((pathname === '/login' || pathname === '/register') && hasToken) {
     return NextResponse.redirect(new URL('/home', req.url));
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/home/:path*', '/login', '/register'],
+  matcher: ['/', '/home/:path*', '/login', '/register'],
 };
